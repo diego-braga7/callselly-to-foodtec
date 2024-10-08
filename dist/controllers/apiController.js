@@ -12,8 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getDataFromAnotherAPI = void 0;
+exports.MenuCategories = exports.getDataFromAnotherAPI = void 0;
 const axios_1 = __importDefault(require("axios"));
+const apiUrl = process.env.URL_FOODTEC;
+const apiUsername = process.env.USERNAME_FOODTEC;
+const apiPassword = process.env.PASSWORD_FOODTEC;
+const apiAuthToken = Buffer.from(`${apiUsername}:${apiPassword}`).toString("base64");
 const getDataFromAnotherAPI = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const response = yield axios_1.default.get("https://api.exemplo.com/endpoint");
@@ -24,3 +28,17 @@ const getDataFromAnotherAPI = (req, res) => __awaiter(void 0, void 0, void 0, fu
     }
 });
 exports.getDataFromAnotherAPI = getDataFromAnotherAPI;
+const MenuCategories = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const response = yield axios_1.default.get(apiUrl + "/ws/store/v1/menu/categories?orderType=Delivery", {
+            headers: {
+                Authorization: `Basic ${apiAuthToken}`
+            }
+        });
+        res.json(response.data);
+    }
+    catch (error) {
+        res.status(500).json({ message: "Erro ao acessar API externa" });
+    }
+});
+exports.MenuCategories = MenuCategories;
