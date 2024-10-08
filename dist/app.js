@@ -29,17 +29,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const apiRoutes_1 = __importDefault(require("./routes/apiRoutes"));
 const dotenv = __importStar(require("dotenv"));
+const authMiddleware_1 = require("./middleware/authMiddleware");
 dotenv.config();
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 3000;
 app.use(express_1.default.json());
-// Rotas da API
-app.use("/api", apiRoutes_1.default);
-// Rota de exemplo
+app.use("/api", authMiddleware_1.basicAuth, apiRoutes_1.default);
 app.get("/", (req, res) => {
-    res.send("API Intermediária Express com TypeScript");
+    res.send("Hello World!");
 });
-// Iniciar o servidor
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
 });

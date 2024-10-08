@@ -1,6 +1,7 @@
 import express, { Application, Request, Response } from "express";
 import apiRoutes from "./routes/apiRoutes";
 import * as dotenv from 'dotenv';
+import { basicAuth } from "./middleware/authMiddleware";
 
 dotenv.config();
 
@@ -10,15 +11,12 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 
-// Rotas da API
-app.use("/api", apiRoutes);
+app.use("/api", basicAuth, apiRoutes);
 
-// Rota de exemplo
 app.get("/", (req: Request, res: Response) => {
-  res.send("API Intermediária Express com TypeScript");
+  res.send("Hello World!");
 });
 
-// Iniciar o servidor
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
 });
