@@ -29,8 +29,19 @@ const getDataFromAnotherAPI = (req, res) => __awaiter(void 0, void 0, void 0, fu
 });
 exports.getDataFromAnotherAPI = getDataFromAnotherAPI;
 const MenuCategories = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(req.body);
+    let { category, items, orderType } = req.body;
+    if (orderType == undefined) {
+        orderType = "Delivery";
+    }
+    let baseUrl = apiUrl + `/ws/store/v1/menu/categories/${category}?orderType=${orderType}`;
+    console.log(items);
+    if (items) {
+        baseUrl = apiUrl + `/ws/store/v1/menu/categories/${category}/items/${items}?orderType=${orderType}`;
+    }
+    console.log(baseUrl);
     try {
-        const response = yield axios_1.default.get(apiUrl + "/ws/store/v1/menu/categories?orderType=Delivery", {
+        const response = yield axios_1.default.get(baseUrl, {
             headers: {
                 Authorization: `Basic ${apiAuthToken}`
             }

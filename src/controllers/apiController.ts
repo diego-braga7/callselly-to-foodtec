@@ -16,18 +16,34 @@ export const getDataFromAnotherAPI = async (req: Request, res: Response) => {
 
 
 export const MenuCategories = async (req: Request, res: Response) => {
-    try {
-      const response = await axios.get( apiUrl + "/ws/store/v1/menu/categories?orderType=Delivery",
-        {
-            headers: {
-              Authorization: `Basic ${apiAuthToken}`
-            }
-          }
-      );
-      res.json(response.data);
-    } catch (error) {
-      res.status(500).json({ message: "Erro ao acessar API externa" });
-    }
-  };
+
+  console.log(req.body);
+
+  let { category, items, orderType } = req.body;
+
+  if (orderType == undefined) {
+    orderType = "Delivery";
+  }
+
+  let baseUrl = apiUrl + `/ws/store/v1/menu/categories/${category}?orderType=${orderType}`;
+  console.log(items);
+  if (items) {
+    baseUrl = apiUrl + `/ws/store/v1/menu/categories/${category}/items/${items}?orderType=${orderType}`;
+  }
+  console.log(baseUrl);
+  try {
+    const response = await axios.get(baseUrl,
+      {
+        headers: {
+          Authorization: `Basic ${apiAuthToken}`
+        }
+      }
+    );
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).json({ message: "Erro ao acessar API externa" });
+  }
+};
+
 
 
