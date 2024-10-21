@@ -1,26 +1,20 @@
-# Etapa 1: Build da aplicação
-FROM node:18-alpine AS builder
+# Usar a imagem oficial do Node.js
+FROM node:18
 
+# Criar e definir o diretório de trabalho dentro do container
 WORKDIR /app
 
+# Copiar package.json e package-lock.json para o container
 COPY package*.json ./
 
-RUN npm install
+# Instalar dependências
+RUN npm install --only=development
 
+# Copiar o restante do código da aplicação
 COPY . .
 
-RUN npm run build
-
-# Etapa 2: Container final para rodar a aplicação
-FROM node:18-alpine
-
-WORKDIR /app
-
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/dist ./dist
-
-RUN npm install --only=production
-
+# Expor a porta que a aplicação vai rodar
 EXPOSE 3000
 
-CMD ["node", "dist/app.js"]
+# Comando para iniciar a aplicação
+CMD ["npm", "run", "dev"]
