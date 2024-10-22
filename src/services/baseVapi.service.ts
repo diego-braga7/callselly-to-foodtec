@@ -9,6 +9,7 @@ export abstract class BaseVapiService {
 
     private setToolCallsInRequestBody(request: Request){
         const toolCalls: string[] | undefined = request.body.message.toolCalls;
+        console.log(toolCalls);
 
         if (toolCalls === undefined || !toolCalls) {
             return;

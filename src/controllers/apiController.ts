@@ -22,21 +22,17 @@ export const MenuCategories = async (req: Request, res: Response) => {
   try {
     const menuFoodtec = new MenuService(req, res);
 
-    // Aguarda a execução do handle() corretamente
     const result = await menuFoodtec.handle();
-
-    // Use res.json() para enviar a resposta
+    
     res.json(result);
 
   } catch (error: any) {
+    console.log(error.response);
     const errorMessage = error.response
-      ? `Erro: ${error.response.status} - ${error.response.statusText}`
+      ? error.response.data
       : error.message;
 
     console.error("Detalhes do erro:", errorMessage);
-
-    // Use res.status().json() para enviar o erro
-    res.status(500).json({ message: "Erro ao acessar API externa", error: errorMessage });
   }
 };
 
@@ -46,21 +42,18 @@ export const orderValidate = async (req: Request, res: Response) => {
   try {
     const menuFoodtec = new OrderValidationService(req, res);
 
-    // Aguarda a execução do handle() corretamente
     const result = await menuFoodtec.handle();
 
-    // Use res.json() para enviar a resposta
     res.json(result);
 
   } catch (error: any) {
-    console.log(error);
+    console.log(error.response);
     const errorMessage = error.response
-      ? `Erro: ${error.response.status} - ${error.response.statusText}`
+      ? error.response.data
       : error.message;
 
     console.error("Detalhes do erro:", errorMessage);
 
-    // Use res.status().json() para enviar o erro
-    res.status(500).json({ message: "Erro ao acessar API externa", error: errorMessage });
+    res.status(error.response.status).json({ data: errorMessage });
   }
 };
