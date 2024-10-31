@@ -2,6 +2,7 @@ import {  Request, Response } from "express";
 export abstract class BaseVapiService {
 
     protected $toolCalls: any = null;
+    public vapiId: any = null;
 
     constructor(protected request: Request,protected response: Response){
         this.setToolCallsInRequestBody(request);
@@ -21,13 +22,13 @@ export abstract class BaseVapiService {
     public async handle() {
         const finalResponse = await Promise.all(
             this.$toolCalls.map(async (toolCall: any) => {
-                let id = toolCall.id;
+                this.vapiId = toolCall.id;
                 let vapiArguments = toolCall.function.arguments;
     
                 const result = await this.execute(vapiArguments);
                 const resultObject = [
                     {
-                        toolCallId: id,
+                        toolCallId: this.vapiId,
                         result: result,
                     },
                 ];

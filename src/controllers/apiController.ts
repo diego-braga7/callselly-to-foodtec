@@ -4,17 +4,10 @@ import { OrderValidationService } from "../services/orderValidation.service";
 import { ConfirmOrderService } from "../services/confirmOrder.service";
 import { PhoneService } from "../services/phone.service";
 
-const apiUrl = "https://dedhamlab.foodtecsolutions.com";
-const apiUsername = "apiclient";
-const apiPassword = "6SWXRaX8mBe48qH";
-const apiAuthToken = Buffer.from(`${apiUsername}:${apiPassword}`).toString(
-  "base64",
-);
-
 
 export const MenuCategories = async (req: Request, res: Response) => {
+  const menuFoodtec = new MenuService(req, res);
   try {
-    const menuFoodtec = new MenuService(req, res);
 
     const result = await menuFoodtec.handle();
 
@@ -26,18 +19,29 @@ export const MenuCategories = async (req: Request, res: Response) => {
       ? error.response.data
       : error.message;
 
-    console.error("Detalhes do erro:", errorMessage);
-    res.status(error.response.status).json({ data: errorMessage });
+      const resultObject = [
+        {
+          toolCallId: menuFoodtec.vapiId,
+          result: errorMessage,
+        },
+      ];
+      const returnToVapi = {
+        results: resultObject,
+      };
+  
+      console.error("Detalhes do erro:", errorMessage);
+  
+      res.status(error.response.status).json(returnToVapi);
   }
 };
 
 
 
 export const orderValidate = async (req: Request, res: Response) => {
+  const validateFoodtec = new OrderValidationService(req, res);
   try {
-    const menuFoodtec = new OrderValidationService(req, res);
 
-    const result = await menuFoodtec.handle();
+    const result = await validateFoodtec.handle();
 
     res.json(result);
 
@@ -47,17 +51,27 @@ export const orderValidate = async (req: Request, res: Response) => {
       ? error.response.data
       : error.message;
 
+    const resultObject = [
+      {
+        toolCallId: validateFoodtec.vapiId,
+        result: errorMessage,
+      },
+    ];
+    const returnToVapi = {
+      results: resultObject,
+    };
+
     console.error("Detalhes do erro:", errorMessage);
 
-    res.status(error.response.status).json({ data: errorMessage });
+    res.status(error.response.status).json(returnToVapi);
   }
 };
 
 export const confirmOrder = async (req: Request, res: Response) => {
+  const confirmOrder = new ConfirmOrderService(req, res);
   try {
-    const menuFoodtec = new ConfirmOrderService(req, res);
 
-    const result = await menuFoodtec.handle();
+    const result = await confirmOrder.handle();
 
     res.json(result);
 
@@ -67,9 +81,19 @@ export const confirmOrder = async (req: Request, res: Response) => {
       ? error.response.data
       : error.message;
 
+    const resultObject = [
+      {
+        toolCallId: confirmOrder.vapiId,
+        result: errorMessage,
+      },
+    ];
+    const returnToVapi = {
+      results: resultObject,
+    };
+
     console.error("Detalhes do erro:", errorMessage);
 
-    res.status(error.response.status).json({ data: errorMessage });
+    res.status(error.response.status).json(returnToVapi);
   }
 };
 
@@ -92,5 +116,5 @@ export const formatPhone = async (req: Request, res: Response) => {
 
     res.status(error.response.status).json({ data: errorMessage });
   }
-  
+
 };
