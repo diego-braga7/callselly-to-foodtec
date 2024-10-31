@@ -4,9 +4,9 @@ import axios from "axios";
 
 export class MenuService extends BaseVapiService {
 
-    private apiUrl: string = "https://dedhamlab.foodtecsolutions.com";
-    private apiUsername: string = "apiclient";
-    private apiPassword: string = "6SWXRaX8mBe48qH";
+    private apiUrl: string = process.env.URL_FOODTEC!;
+    private apiUsername: string = process.env.USERNAME_FOODTEC!;
+    private apiPassword: string = process.env.MENU_PASSWORD_FOODTEC!;
 
     private apiAuthToken: string = '';
 

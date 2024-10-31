@@ -1,12 +1,13 @@
 import { BaseVapiService } from "./baseVapi.service";
 import { Request, Response } from "express";
 import axios from "axios";
+import { EmailService } from "./email.service";
 
 export class ConfirmOrderService extends BaseVapiService {
 
-    private apiUrl: string = "https://dedhamlab.foodtecsolutions.com";
-    private apiUsername: string = "apiclient";
-    private apiPassword: string = "V4poMTyy8mhpAeF";
+    private apiUrl: string = process.env.URL_FOODTEC!;
+    private apiUsername: string = process.env.USERNAME_FOODTEC!;
+    private apiPassword: string = process.env.CONFIRM_ORDER_PASSWORD_FOODTEC!;
 
     private apiAuthToken: string = '';
 
@@ -37,6 +38,9 @@ export class ConfirmOrderService extends BaseVapiService {
                 }
             }
         );
+        const jsonText = JSON.stringify(response.data, null, 2);
+
+        EmailService.send(process.env.LIST_EMAILS!, 'Confirmando pedido', `pedido aceito\n ${jsonText}`);
         return response.data;
 
     }
