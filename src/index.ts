@@ -3,6 +3,8 @@ import apiRoutes from "./routes/apiRoutes";
 import * as dotenv from 'dotenv';
 import { authMiddleware } from "./middleware/authMiddleware";
 import authRoutes from './routes/auth';
+import "reflect-metadata";
+import {AppDataSource } from "./data-source";
 
 dotenv.config();
 
@@ -22,3 +24,14 @@ app.get("/", (req: Request, res: Response) => {
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
 });
+
+
+AppDataSource.initialize()
+  .then(() => {
+    console.log("Connected to database");
+
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  })
+  .catch((error) => console.log("Database connection error: ", error));

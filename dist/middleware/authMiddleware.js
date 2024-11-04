@@ -1,23 +1,25 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.basicAuth = void 0;
-const USERNAME = process.env.API_USERNAME || "admin";
-const PASSWORD = process.env.API_PASSWORD || "password";
-const basicAuth = (req, res, next) => {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith("Basic ")) {
-        res.setHeader("WWW-Authenticate", "Basic");
-        res.status(401).json({ message: "Autenticação necessária" });
-        return;
-    }
-    const base64Credentials = authHeader.split(" ")[1];
-    const credentials = Buffer.from(base64Credentials, "base64").toString("ascii");
-    const [username, password] = credentials.split(":");
-    if (username === USERNAME && password === PASSWORD) {
+exports.authMiddleware = void 0;
+const jwtUtils_1 = require("../utils/jwtUtils");
+const authMiddleware = (req, res, next) => {
+    try {
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            res.status(401).json({ message: 'Unauthorized' });
+            return;
+        }
+        const token = authHeader.split(' ')[1];
+        const decoded = (0, jwtUtils_1.verifyToken)(token);
+        if (!decoded) {
+            res.status(401).json({ message: 'Invalid token' });
+            return;
+        }
+        req.user = decoded;
         next();
     }
-    else {
-        res.status(401).json({ message: "Credenciais inválidas" });
+    catch (error) {
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 };
-exports.basicAuth = basicAuth;
+exports.authMiddleware = authMiddleware;

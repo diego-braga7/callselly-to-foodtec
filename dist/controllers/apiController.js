@@ -8,48 +8,100 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MenuCategories = exports.getDataFromAnotherAPI = void 0;
-const axios_1 = __importDefault(require("axios"));
-const apiUrl = process.env.URL_FOODTEC;
-const apiUsername = process.env.USERNAME_FOODTEC;
-const apiPassword = process.env.PASSWORD_FOODTEC;
-const apiAuthToken = Buffer.from(`${apiUsername}:${apiPassword}`).toString("base64");
-const getDataFromAnotherAPI = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const response = yield axios_1.default.get("https://api.exemplo.com/endpoint");
-        res.json(response.data);
-    }
-    catch (error) {
-        res.status(500).json({ message: "Erro ao acessar API externa" });
-    }
-});
-exports.getDataFromAnotherAPI = getDataFromAnotherAPI;
+exports.formatPhone = exports.confirmOrder = exports.orderValidate = exports.MenuCategories = void 0;
+const menu_service_1 = require("../services/menu.service");
+const orderValidation_service_1 = require("../services/orderValidation.service");
+const confirmOrder_service_1 = require("../services/confirmOrder.service");
+const phone_service_1 = require("../services/phone.service");
 const MenuCategories = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(req.body);
-    let { category, items, orderType } = req.body;
-    if (orderType == undefined) {
-        orderType = "Delivery";
-    }
-    let baseUrl = apiUrl + `/ws/store/v1/menu/categories/${category}?orderType=${orderType}`;
-    console.log(items);
-    if (items) {
-        baseUrl = apiUrl + `/ws/store/v1/menu/categories/${category}/items/${items}?orderType=${orderType}`;
-    }
-    console.log(baseUrl);
+    const menuFoodtec = new menu_service_1.MenuService(req, res);
     try {
-        const response = yield axios_1.default.get(baseUrl, {
-            headers: {
-                Authorization: `Basic ${apiAuthToken}`
-            }
-        });
-        res.json(response.data);
+        const result = yield menuFoodtec.handle();
+        res.json(result);
     }
     catch (error) {
-        res.status(500).json({ message: "Erro ao acessar API externa" });
+        console.log(error.response);
+        const errorMessage = error.response
+            ? error.response.data
+            : error.message;
+        const resultObject = [
+            {
+                toolCallId: menuFoodtec.vapiId,
+                result: errorMessage,
+            },
+        ];
+        const returnToVapi = {
+            results: resultObject,
+        };
+        console.error("Detalhes do erro:", errorMessage);
+        res.status(error.response.status).json(returnToVapi);
     }
 });
 exports.MenuCategories = MenuCategories;
+const orderValidate = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const validateFoodtec = new orderValidation_service_1.OrderValidationService(req, res);
+    try {
+        const result = yield validateFoodtec.handle();
+        res.json(result);
+    }
+    catch (error) {
+        console.log(error.response);
+        const errorMessage = error.response
+            ? error.response.data
+            : error.message;
+        const resultObject = [
+            {
+                toolCallId: validateFoodtec.vapiId,
+                result: errorMessage,
+            },
+        ];
+        const returnToVapi = {
+            results: resultObject,
+        };
+        console.error("Detalhes do erro:", errorMessage);
+        res.status(error.response.status).json(returnToVapi);
+    }
+});
+exports.orderValidate = orderValidate;
+const confirmOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const confirmOrder = new confirmOrder_service_1.ConfirmOrderService(req, res);
+    try {
+        const result = yield confirmOrder.handle();
+        res.json(result);
+    }
+    catch (error) {
+        console.log(error.response);
+        const errorMessage = error.response
+            ? error.response.data
+            : error.message;
+        const resultObject = [
+            {
+                toolCallId: confirmOrder.vapiId,
+                result: errorMessage,
+            },
+        ];
+        const returnToVapi = {
+            results: resultObject,
+        };
+        console.error("Detalhes do erro:", errorMessage);
+        res.status(error.response.status).json(returnToVapi);
+    }
+});
+exports.confirmOrder = confirmOrder;
+const formatPhone = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const menuFoodtec = new phone_service_1.PhoneService(req, res);
+        const result = yield menuFoodtec.handle();
+        res.json(result);
+    }
+    catch (error) {
+        console.log(error.response);
+        const errorMessage = error.response
+            ? error.response.data
+            : error.message;
+        console.error("Detalhes do erro:", errorMessage);
+        res.status(error.response.status).json({ data: errorMessage });
+    }
+});
+exports.formatPhone = formatPhone;
