@@ -2,6 +2,8 @@ import { BaseVapiService } from "./baseVapi.service";
 import { Request, Response } from "express";
 import axios from "axios";
 import { EmailService } from "./email.service";
+import { OrderRepository } from "../repository/order.repository";
+import { OrderStatus } from "../entity/order";
 
 export class OrderValidationService extends BaseVapiService {
 
@@ -39,6 +41,9 @@ export class OrderValidationService extends BaseVapiService {
             }
         );
         const jsonText = JSON.stringify(response.data, null, 2);
+
+        const orderRepository = new OrderRepository();
+        orderRepository.createOrder(response.data, OrderStatus.PENDING);
 
         EmailService.send(process.env.LIST_EMAILS!, 'Validando pedido', `Validando pedido\n ${jsonText}`);
 

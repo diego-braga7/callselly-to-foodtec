@@ -14,7 +14,7 @@ services:
   callselly-to-foodtec:
     build: .
     container_name: callselly-to-foodtec
-    restart: always
+    # restart: always
     working_dir: /app
     ports:
       - "3000:3000"
