@@ -42,12 +42,10 @@ app.use("/api", authMiddleware_1.authMiddleware, apiRoutes_1.default);
 app.get("/", (req, res) => {
     res.send("Hello World!");
 });
-app.listen(PORT, () => {
-    console.log(`Servidor rodando na porta ${PORT}`);
-});
 data_source_1.AppDataSource.initialize()
     .then(() => {
     console.log("Connected to database");
+    console.log("Entidades carregadas:", data_source_1.AppDataSource.entityMetadatas.map(meta => meta.name));
     app.listen(PORT, () => {
         console.log(`Server is running on port ${PORT}`);
     });

@@ -5,6 +5,7 @@ import { authMiddleware } from "./middleware/authMiddleware";
 import authRoutes from './routes/auth';
 import "reflect-metadata";
 import {AppDataSource } from "./data-source";
+import path from "path";
 
 dotenv.config();
 
@@ -25,6 +26,8 @@ app.get("/", (req: Request, res: Response) => {
 AppDataSource.initialize()
   .then(() => {
     console.log("Connected to database");
+    
+    console.log("Entidades carregadas:", AppDataSource.entityMetadatas.map(meta => meta.name));
 
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);

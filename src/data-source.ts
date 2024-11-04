@@ -2,6 +2,7 @@ import "reflect-metadata";
 import { DataSource } from "typeorm";
 import * as dotenv from "dotenv";
 import path from "path";
+import { Order } from "./entity/order";
 
 dotenv.config();
 
@@ -14,7 +15,7 @@ export const AppDataSource = new DataSource({
   database: process.env.POSTGRES_DB,
   synchronize: process.env.DB_SYNCHRONIZE === "false",
   logging: process.env.DB_LOGGING === "true",
-  entities: [path.join(__dirname, "entity/**/*.js")],
+  entities: [Order],
   migrations: [path.join(__dirname, "migration/**/*.js")],
   subscribers: [path.join(__dirname, "subscriber/**/*.js")],
 });

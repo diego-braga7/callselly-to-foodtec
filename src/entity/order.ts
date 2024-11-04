@@ -11,6 +11,7 @@ import {
     PENDING = "pending",
     COMPLETED = "completed",
     CANCELLED = "cancelled",
+    ERROR = "error",
   }
   
   @Entity("order")

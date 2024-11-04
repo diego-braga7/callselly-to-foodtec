@@ -16,6 +16,8 @@ exports.OrderValidationService = void 0;
 const baseVapi_service_1 = require("./baseVapi.service");
 const axios_1 = __importDefault(require("axios"));
 const email_service_1 = require("./email.service");
+const order_repository_1 = require("../repository/order.repository");
+const order_1 = require("../entity/order");
 class OrderValidationService extends baseVapi_service_1.BaseVapiService {
     constructor(request, response) {
         super(request, response);
@@ -39,6 +41,8 @@ class OrderValidationService extends baseVapi_service_1.BaseVapiService {
                 }
             });
             const jsonText = JSON.stringify(response.data, null, 2);
+            const orderRepository = new order_repository_1.OrderRepository();
+            orderRepository.createOrder(response.data, order_1.OrderStatus.PENDING);
             email_service_1.EmailService.send(process.env.LIST_EMAILS, 'Validando pedido', `Validando pedido\n ${jsonText}`);
             return response.data;
         });

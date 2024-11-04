@@ -31,6 +31,7 @@ require("reflect-metadata");
 const typeorm_1 = require("typeorm");
 const dotenv = __importStar(require("dotenv"));
 const path_1 = __importDefault(require("path"));
+const order_1 = require("./entity/order");
 dotenv.config();
 exports.AppDataSource = new typeorm_1.DataSource({
     type: "postgres",
@@ -41,7 +42,7 @@ exports.AppDataSource = new typeorm_1.DataSource({
     database: process.env.POSTGRES_DB,
     synchronize: process.env.DB_SYNCHRONIZE === "false",
     logging: process.env.DB_LOGGING === "true",
-    entities: [path_1.default.join(__dirname, "entity/**/*.js")],
+    entities: [order_1.Order],
     migrations: [path_1.default.join(__dirname, "migration/**/*.js")],
     subscribers: [path_1.default.join(__dirname, "subscriber/**/*.js")],
 });
