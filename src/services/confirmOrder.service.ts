@@ -45,9 +45,9 @@ export class ConfirmOrderService extends BaseVapiService {
             return "Order canceled successfully";
         }
 
-        // if(order.status == OrderStatus.COMPLETED){
-        //     return "Completed order cannot be changed"
-        // }
+        if(order.status == OrderStatus.COMPLETED){
+            return "Completed order cannot be changed"
+        }
 
         let dataToFoodTec: OrderFoodTec;
         if (typeof order.data === "string") {
