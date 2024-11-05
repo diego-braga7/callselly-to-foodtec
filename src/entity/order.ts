@@ -28,6 +28,12 @@ import {
       default: OrderStatus.PENDING,
     })
     status!: OrderStatus;
+
+    @Column({
+      type: "text",
+      name: "data_error"
+    })
+    dataError?: string;
   
     @CreateDateColumn({ name: "created_at" })
     createdAt!: Date;

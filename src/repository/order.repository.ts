@@ -3,7 +3,7 @@ import { Order, OrderStatus } from "../entity/order";
 export class OrderRepository{
 
     
-    async createOrder(data: string, status: OrderStatus) {
+    async create(data: string, status: OrderStatus) : Promise<Order> {
         const orderRepository = AppDataSource.getRepository(Order);
       
         const newOrder = orderRepository.create({
@@ -12,11 +12,11 @@ export class OrderRepository{
         });
       
         await orderRepository.save(newOrder);
-        console.log("Order created:", newOrder);
+
         return newOrder;
       }
 
-      async updateOrder(orderId: string, newData: Partial<Order>) {
+      async update(orderId: string, newData: Partial<Order>) {
         const orderRepository = AppDataSource.getRepository(Order);
       
         const order = await orderRepository.findOneBy({ id: orderId });
@@ -30,13 +30,16 @@ export class OrderRepository{
         if (newData.status) {
           order.status = newData.status;
         }
+        if (newData.dataError) {
+          order.dataError = newData.dataError;
+        }
       
         await orderRepository.save(order);
-        console.log("Order updated:", order);
+
         return order;
       }
 
-      async deleteOrder(orderId: string) {
+      async delete(orderId: string) {
         const orderRepository = AppDataSource.getRepository(Order);
       
         const order = await orderRepository.findOneBy({ id: orderId });
@@ -45,7 +48,14 @@ export class OrderRepository{
         }
       
         await orderRepository.softRemove(order);
-        console.log("Order soft deleted:", order);
+
         return order;
       }
+
+      async findOne(orderId: string) : Promise<Order|null>{
+        const orderRepository = AppDataSource.getRepository(Order);
+      
+        return await orderRepository.findOneBy({ id: orderId });
+      }
+
 }

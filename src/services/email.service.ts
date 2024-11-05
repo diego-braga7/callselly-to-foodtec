@@ -13,6 +13,9 @@ export class EmailService {
 
     static async send(to: string, subject: string, text: string, html?: string) {
         try {
+           if(!process.env.SEND_MAIL){
+                return;
+           }
             await transporter.sendMail({
                 from: `"Callselly Notifications" <${process.env.EMAIL_USER}>`,
                 to,

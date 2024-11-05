@@ -6,7 +6,8 @@ import { PhoneService } from "../services/phone.service";
 import { OrderRepository } from "../repository/order.repository";
 import { OrderStatus } from "../entity/order";
 import { BaseVapiService } from "../services/baseVapi.service";
-
+import { baseException } from "../exceptions/base.exception";
+import { QueryFailedError } from "typeorm";
 
 export const MenuCategories = async (req: Request, res: Response) => {
   const menuFoodtec = new MenuService(req, res);
@@ -16,7 +17,7 @@ export const MenuCategories = async (req: Request, res: Response) => {
 export const orderValidate = async (req: Request, res: Response) => {
   const validateFoodtec = new OrderValidationService(req, res);
   baseHandleOrder(validateFoodtec, req, res);
- 
+
 };
 
 export const confirmOrder = async (req: Request, res: Response) => {
@@ -24,34 +25,43 @@ export const confirmOrder = async (req: Request, res: Response) => {
   baseHandleOrder(confirmOrder, req, res);
 };
 
-async function baseHandleOrder(base: BaseVapiService, req: Request, res: Response){
+async function baseHandleOrder(base: BaseVapiService, req: Request, res: Response) {
   try {
-
     const result = await base.handle();
 
     res.json(result);
 
   } catch (error: any) {
-    console.log(error.response);
-    const errorMessage = error.response
-      ? error.response.data
-      : error.message;
-      const orderRepository = new OrderRepository();
-      orderRepository.createOrder(errorMessage, OrderStatus.ERROR);
+    console.log(error);
+    let status = 500;
+    let message = '';
+    if (error instanceof baseException) {
+      status = error.status;
+      message = error.message;
+
+    } else if (error instanceof QueryFailedError) {
+      message = error.message;
+    } else {
+      console.log(error.response);
+      message = error.response
+        ? error.response.data
+        : error.message;
+      status = error.response.status;
+    }
 
     const resultObject = [
       {
         toolCallId: base.vapiId,
-        result: errorMessage,
+        result: message,
       },
     ];
     const returnToVapi = {
       results: resultObject,
     };
 
-    console.error("Detalhes do erro:", errorMessage);
+    console.error("Detalhes do erro:", message);
 
-    res.status(error.response.status).json(returnToVapi);
+    res.status(status).json(returnToVapi);
   }
 }
 
@@ -63,8 +73,13 @@ export const formatPhone = async (req: Request, res: Response) => {
 
     res.json(result);
 
-  } catch (error: any) {
-    console.log(error.response);
+  }
+  catch (error: any) {
+    if (error == baseException) {
+      res.status(error.status).json({ data: error.message });
+      return;
+    }
+    
     const errorMessage = error.response
       ? error.response.data
       : error.message;

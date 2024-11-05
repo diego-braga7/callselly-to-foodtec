@@ -42,9 +42,11 @@ class OrderValidationService extends baseVapi_service_1.BaseVapiService {
             });
             const jsonText = JSON.stringify(response.data, null, 2);
             const orderRepository = new order_repository_1.OrderRepository();
-            orderRepository.createOrder(response.data, order_1.OrderStatus.PENDING);
+            const order = yield orderRepository.create(response.data, order_1.OrderStatus.PENDING);
+            const orderResponseVapi = order.data;
+            orderResponseVapi.externalRef = order.id;
             email_service_1.EmailService.send(process.env.LIST_EMAILS, 'Validando pedido', `Validando pedido\n ${jsonText}`);
-            return response.data;
+            return orderResponseVapi;
         });
     }
 }

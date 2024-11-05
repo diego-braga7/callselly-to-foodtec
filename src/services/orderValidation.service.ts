@@ -4,6 +4,7 @@ import axios from "axios";
 import { EmailService } from "./email.service";
 import { OrderRepository } from "../repository/order.repository";
 import { OrderStatus } from "../entity/order";
+import { OrderFoodTec } from "../interfaces/responseOrderFoodtec";
 
 export class OrderValidationService extends BaseVapiService {
 
@@ -43,11 +44,13 @@ export class OrderValidationService extends BaseVapiService {
         const jsonText = JSON.stringify(response.data, null, 2);
 
         const orderRepository = new OrderRepository();
-        orderRepository.createOrder(response.data, OrderStatus.PENDING);
+        const order = await orderRepository.create(response.data, OrderStatus.PENDING);
+        const orderResponseVapi = order.data as unknown as OrderFoodTec;
+        orderResponseVapi.externalRef = order.id;
 
         EmailService.send(process.env.LIST_EMAILS!, 'Validando pedido', `Validando pedido\n ${jsonText}`);
 
-        return response.data;
+        return orderResponseVapi;
 
     }
 

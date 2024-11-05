@@ -16,6 +16,7 @@ var OrderStatus;
     OrderStatus["PENDING"] = "pending";
     OrderStatus["COMPLETED"] = "completed";
     OrderStatus["CANCELLED"] = "cancelled";
+    OrderStatus["ERROR"] = "error";
 })(OrderStatus = exports.OrderStatus || (exports.OrderStatus = {}));
 let Order = class Order {
 };
@@ -35,6 +36,13 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], Order.prototype, "status", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
+        type: "text",
+        name: "data_error"
+    }),
+    __metadata("design:type", String)
+], Order.prototype, "dataError", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)({ name: "created_at" }),
     __metadata("design:type", Date)

@@ -16,6 +16,10 @@ exports.ConfirmOrderService = void 0;
 const baseVapi_service_1 = require("./baseVapi.service");
 const axios_1 = __importDefault(require("axios"));
 const email_service_1 = require("./email.service");
+const order_repository_1 = require("../repository/order.repository");
+const notFound_exception_1 = require("../exceptions/notFound.exception");
+const order_1 = require("../entity/order");
+const axiosErrorHandler_1 = require("../helpers/axiosErrorHandler");
 class ConfirmOrderService extends baseVapi_service_1.BaseVapiService {
     constructor(request, response) {
         super(request, response);
@@ -30,17 +34,55 @@ class ConfirmOrderService extends baseVapi_service_1.BaseVapiService {
             if (vapiArguments == undefined) {
                 return null;
             }
+            let { externalRef, confirm } = vapiArguments;
+            const orderRepository = new order_repository_1.OrderRepository();
+            const order = yield orderRepository.findOne(externalRef);
+            if (!order || order == undefined) {
+                throw new notFound_exception_1.NotFoundError(`Pedido ${externalRef} não encontrado!.`);
+            }
+            if (order.status == order_1.OrderStatus.ERROR) {
+                return "order created in error, cannot be changed";
+            }
+            if (!confirm && order.status != order_1.OrderStatus.COMPLETED) {
+                orderRepository.update(order.id, { status: order_1.OrderStatus.CANCELLED });
+                return "Order canceled successfully";
+            }
+            // if(order.status == OrderStatus.COMPLETED){
+            //     return "Completed order cannot be changed"
+            // }
+            let dataToFoodTec;
+            if (typeof order.data === "string") {
+                dataToFoodTec = JSON.parse(order.data);
+            }
+            else {
+                dataToFoodTec = order.data;
+            }
+            dataToFoodTec.externalRef = order.id;
             console.log(vapiArguments);
             let baseUrl = this.apiUrl + `/ws/store/v1/orders?suspend=false`;
-            const response = yield axios_1.default.post(baseUrl, vapiArguments, {
-                headers: {
-                    Authorization: `Basic ${this.apiAuthToken}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-            const jsonText = JSON.stringify(response.data, null, 2);
-            email_service_1.EmailService.send(process.env.LIST_EMAILS, 'Confirmando pedido', `pedido aceito\n ${jsonText}`);
-            return response.data;
+            try {
+                const response = yield axios_1.default.post(baseUrl, dataToFoodTec, {
+                    headers: {
+                        Authorization: `Basic ${this.apiAuthToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const jsonText = JSON.stringify(response.data, null, 2);
+                let dataUpdate = {
+                    data: response.data,
+                    status: order_1.OrderStatus.COMPLETED
+                };
+                orderRepository.update(order.id, dataUpdate);
+                email_service_1.EmailService.send(process.env.LIST_EMAILS, 'Confirmando pedido', `pedido aceito\n ${jsonText}`);
+                return response.data;
+            }
+            catch (error) {
+                orderRepository.update(order.id, {
+                    status: order_1.OrderStatus.ERROR,
+                    dataError: (0, axiosErrorHandler_1.serializeError)(error)
+                });
+                return (0, axiosErrorHandler_1.handleAxiosError)(error);
+            }
         });
     }
 }

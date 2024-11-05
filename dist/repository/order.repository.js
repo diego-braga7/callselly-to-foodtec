@@ -13,7 +13,7 @@ exports.OrderRepository = void 0;
 const data_source_1 = require("../data-source");
 const order_1 = require("../entity/order");
 class OrderRepository {
-    createOrder(data, status) {
+    create(data, status) {
         return __awaiter(this, void 0, void 0, function* () {
             const orderRepository = data_source_1.AppDataSource.getRepository(order_1.Order);
             const newOrder = orderRepository.create({
@@ -21,11 +21,10 @@ class OrderRepository {
                 status,
             });
             yield orderRepository.save(newOrder);
-            console.log("Order created:", newOrder);
             return newOrder;
         });
     }
-    updateOrder(orderId, newData) {
+    update(orderId, newData) {
         return __awaiter(this, void 0, void 0, function* () {
             const orderRepository = data_source_1.AppDataSource.getRepository(order_1.Order);
             const order = yield orderRepository.findOneBy({ id: orderId });
@@ -38,12 +37,14 @@ class OrderRepository {
             if (newData.status) {
                 order.status = newData.status;
             }
+            if (newData.dataError) {
+                order.dataError = newData.dataError;
+            }
             yield orderRepository.save(order);
-            console.log("Order updated:", order);
             return order;
         });
     }
-    deleteOrder(orderId) {
+    delete(orderId) {
         return __awaiter(this, void 0, void 0, function* () {
             const orderRepository = data_source_1.AppDataSource.getRepository(order_1.Order);
             const order = yield orderRepository.findOneBy({ id: orderId });
@@ -51,8 +52,13 @@ class OrderRepository {
                 throw new Error("Order not found");
             }
             yield orderRepository.softRemove(order);
-            console.log("Order soft deleted:", order);
             return order;
+        });
+    }
+    findOne(orderId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const orderRepository = data_source_1.AppDataSource.getRepository(order_1.Order);
+            return yield orderRepository.findOneBy({ id: orderId });
         });
     }
 }

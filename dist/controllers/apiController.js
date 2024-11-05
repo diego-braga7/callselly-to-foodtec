@@ -14,8 +14,8 @@ const menu_service_1 = require("../services/menu.service");
 const orderValidation_service_1 = require("../services/orderValidation.service");
 const confirmOrder_service_1 = require("../services/confirmOrder.service");
 const phone_service_1 = require("../services/phone.service");
-const order_repository_1 = require("../repository/order.repository");
-const order_1 = require("../entity/order");
+const base_exception_1 = require("../exceptions/base.exception");
+const typeorm_1 = require("typeorm");
 const MenuCategories = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const menuFoodtec = new menu_service_1.MenuService(req, res);
     baseHandleOrder(menuFoodtec, req, res);
@@ -38,23 +38,34 @@ function baseHandleOrder(base, req, res) {
             res.json(result);
         }
         catch (error) {
-            console.log(error.response);
-            const errorMessage = error.response
-                ? error.response.data
-                : error.message;
-            const orderRepository = new order_repository_1.OrderRepository();
-            orderRepository.createOrder(errorMessage, order_1.OrderStatus.CANCELLED);
+            console.log(error);
+            let status = 500;
+            let message = '';
+            if (error instanceof base_exception_1.baseException) {
+                status = error.status;
+                message = error.message;
+            }
+            else if (error instanceof typeorm_1.QueryFailedError) {
+                message = error.message;
+            }
+            else {
+                console.log(error.response);
+                message = error.response
+                    ? error.response.data
+                    : error.message;
+                status = error.response.status;
+            }
             const resultObject = [
                 {
                     toolCallId: base.vapiId,
-                    result: errorMessage,
+                    result: message,
                 },
             ];
             const returnToVapi = {
                 results: resultObject,
             };
-            console.error("Detalhes do erro:", errorMessage);
-            res.status(error.response.status).json(returnToVapi);
+            console.error("Detalhes do erro:", message);
+            res.status(status).json(returnToVapi);
         }
     });
 }
@@ -65,7 +76,10 @@ const formatPhone = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         res.json(result);
     }
     catch (error) {
-        console.log(error.response);
+        if (error == base_exception_1.baseException) {
+            res.status(error.status).json({ data: error.message });
+            return;
+        }
         const errorMessage = error.response
             ? error.response.data
             : error.message;

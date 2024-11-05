@@ -27,6 +27,9 @@ class EmailService {
     static send(to, subject, text, html) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                if (!process.env.SEND_MAIL) {
+                    return;
+                }
                 yield transporter.sendMail({
                     from: `"Callselly Notifications" <${process.env.EMAIL_USER}>`,
                     to,
