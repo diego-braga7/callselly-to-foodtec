@@ -42,6 +42,12 @@ exports.AppDataSource = new typeorm_1.DataSource({
     database: process.env.POSTGRES_DB,
     synchronize: process.env.DB_SYNCHRONIZE === "false",
     logging: process.env.DB_LOGGING === "true",
+    ssl: {
+        rejectUnauthorized: false,
+    },
+    extra: {
+        ssl: true,
+    },
     entities: [order_1.Order],
     migrations: [path_1.default.join(__dirname, "migration/**/*.js")],
     subscribers: [path_1.default.join(__dirname, "subscriber/**/*.js")],

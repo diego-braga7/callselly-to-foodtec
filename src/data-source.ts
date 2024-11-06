@@ -15,6 +15,12 @@ export const AppDataSource = new DataSource({
   database: process.env.POSTGRES_DB,
   synchronize: process.env.DB_SYNCHRONIZE === "false",
   logging: process.env.DB_LOGGING === "true",
+  ssl: {
+    rejectUnauthorized: false, 
+  },
+  extra: {
+    ssl: true,
+  },
   entities: [Order],
   migrations: [path.join(__dirname, "migration/**/*.js")],
   subscribers: [path.join(__dirname, "subscriber/**/*.js")],

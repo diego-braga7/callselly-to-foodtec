@@ -47,9 +47,9 @@ class ConfirmOrderService extends baseVapi_service_1.BaseVapiService {
                 orderRepository.update(order.id, { status: order_1.OrderStatus.CANCELLED });
                 return "Order canceled successfully";
             }
-            // if(order.status == OrderStatus.COMPLETED){
-            //     return "Completed order cannot be changed"
-            // }
+            if (order.status == order_1.OrderStatus.COMPLETED) {
+                return "Completed order cannot be changed";
+            }
             let dataToFoodTec;
             if (typeof order.data === "string") {
                 dataToFoodTec = JSON.parse(order.data);
