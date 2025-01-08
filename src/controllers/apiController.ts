@@ -34,7 +34,7 @@ async function baseHandleOrder(base: BaseVapiService, req: Request, res: Respons
   } catch (error: any) {
     console.log(error);
     let status = 500;
-    let message = '';
+    let message:any = '';
     if (error instanceof baseException) {
       status = error.status;
       message = error.message;
@@ -42,10 +42,12 @@ async function baseHandleOrder(base: BaseVapiService, req: Request, res: Respons
     } else if (error instanceof QueryFailedError) {
       message = error.message;
     } else {
-      console.log(error.response);
       message = error.response
-        ? error.response.data
-        : error.message;
+      ? error.response.data
+      : error.message;
+
+      message = message.meta.code+`: ${message.meta.error}`;
+
       status = error.response.status;
     }
 
