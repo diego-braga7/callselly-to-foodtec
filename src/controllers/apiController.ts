@@ -3,8 +3,6 @@ import { MenuService } from "../services/menu.service";
 import { OrderValidationService } from "../services/orderValidation.service";
 import { ConfirmOrderService } from "../services/confirmOrder.service";
 import { PhoneService } from "../services/phone.service";
-import { OrderRepository } from "../repository/order.repository";
-import { OrderStatus } from "../entity/order";
 import { BaseVapiService } from "../services/baseVapi.service";
 import { baseException } from "../exceptions/base.exception";
 import { QueryFailedError } from "typeorm";
@@ -63,7 +61,7 @@ async function baseHandleOrder(base: BaseVapiService, req: Request, res: Respons
 
     console.error("Detalhes do erro:", message);
 
-    res.status(status).json(returnToVapi);
+    res.status(500).json(returnToVapi);
   }
 }
 
@@ -78,7 +76,7 @@ export const formatPhone = async (req: Request, res: Response) => {
   }
   catch (error: any) {
     if (error == baseException) {
-      res.status(error.status).json({ data: error.message });
+      res.status(500).json({ data: error.message });
       return;
     }
     
@@ -88,7 +86,7 @@ export const formatPhone = async (req: Request, res: Response) => {
 
     console.error("Detalhes do erro:", errorMessage);
 
-    res.status(error.response.status).json({ data: errorMessage });
+    res.status(500).json({ data: errorMessage });
   }
 
 };
