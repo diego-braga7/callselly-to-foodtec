@@ -15,7 +15,6 @@ export const MenuCategories = async (req: Request, res: Response) => {
 export const orderValidate = async (req: Request, res: Response) => {
   const validateFoodtec = new OrderValidationService(req, res);
   baseHandleOrder(validateFoodtec, req, res);
-
 };
 
 export const confirmOrder = async (req: Request, res: Response) => {
@@ -23,36 +22,37 @@ export const confirmOrder = async (req: Request, res: Response) => {
   baseHandleOrder(confirmOrder, req, res);
 };
 
-async function baseHandleOrder(base: BaseVapiService, req: Request, res: Response) {
+async function baseHandleOrder(
+  base: BaseVapiService,
+  req: Request,
+  res: Response,
+) {
   try {
     const result = await base.handle();
 
     res.json(result);
-
   } catch (error: any) {
     console.log(error);
+    let sanitizedErrorMessage = "";
     let status = 500;
-    let message:any = '';
+    let message: any = "";
     if (error instanceof baseException) {
       status = error.status;
       message = error.message;
-
     } else if (error instanceof QueryFailedError) {
       message = error.message;
     } else {
-      message = error.response
-      ? error.response.data
-      : error.message;
+      message = error.response ? error.response.data : error.message;
 
-      message = message.meta.code+`: ${message.meta.error}`;
+      message = message.meta.code + `: ${message.meta.error}`;
 
       status = error.response.status;
     }
-
+    sanitizedErrorMessage = message.replace(/[^a-zA-Z0-9\s]/g, '');
     const resultObject = [
       {
         toolCallId: base.vapiId,
-        result: message,
+        result: sanitizedErrorMessage,
       },
     ];
     const returnToVapi = {
@@ -61,32 +61,30 @@ async function baseHandleOrder(base: BaseVapiService, req: Request, res: Respons
 
     console.error("Detalhes do erro:", message);
 
-    res.status(500).json(returnToVapi);
+    res.status(200).json(returnToVapi);
   }
 }
 
 export const formatPhone = async (req: Request, res: Response) => {
+  let sanitizedErrorMessage = "";
   try {
     const menuFoodtec = new PhoneService(req, res);
 
     const result = await menuFoodtec.handle();
 
     res.json(result);
-
-  }
-  catch (error: any) {
+  } catch (error: any) {
     if (error == baseException) {
-      res.status(500).json({ data: error.message });
+      sanitizedErrorMessage = error.message.replace(/[^a-zA-Z0-9\s]/g, '');
+      res.status(200).json({ data: sanitizedErrorMessage });
       return;
     }
-    
-    const errorMessage = error.response
-      ? error.response.data
-      : error.message;
+
+    const errorMessage = error.response ? error.response.data : error.message;
 
     console.error("Detalhes do erro:", errorMessage);
 
-    res.status(500).json({ data: errorMessage });
+    sanitizedErrorMessage = errorMessage.replace(/[^a-zA-Z0-9\s]/g, '');
+    res.status(200).json({ data: sanitizedErrorMessage });
   }
-
 };
