@@ -44,7 +44,7 @@ async function baseHandleOrder(
     } else {
       message = error.response ? error.response.data : error.message;
 
-      message = message.meta.code + `: ${message.meta.error}`;
+      message = `${message.meta.error}`;
 
       status = error.response.status;
     }

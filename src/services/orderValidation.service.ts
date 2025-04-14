@@ -41,6 +41,7 @@ export class OrderValidationService extends BaseVapiService {
                 }
             }
         );
+        console.log(response.data);
         const jsonText = JSON.stringify(response.data, null, 2);
 
         const orderRepository = new OrderRepository();

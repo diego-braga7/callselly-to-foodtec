@@ -1,6 +1,7 @@
 import { BaseVapiService } from "./baseVapi.service";
 import { Request, Response } from "express";
 import axios from "axios";
+import { NotFoundError } from "../exceptions/notFound.exception";
 
 export class MenuService extends BaseVapiService {
 
@@ -43,8 +44,19 @@ export class MenuService extends BaseVapiService {
                 Authorization: `Basic ${this.apiAuthToken}`,
             },
         });
+        this.processResponse(response, items);
         return response.data;
 
+    }
+
+    async processResponse(response: any, item: string|undefined){
+        if(item == undefined){
+            return true;
+        }
+        if(response.data.item !== item){
+            throw new NotFoundError(`item ${item} not found in menu`);
+        }
+        
     }
 
 }

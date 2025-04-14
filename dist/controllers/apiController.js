@@ -39,8 +39,9 @@ function baseHandleOrder(base, req, res) {
         }
         catch (error) {
             console.log(error);
+            let sanitizedErrorMessage = "";
             let status = 500;
-            let message = '';
+            let message = "";
             if (error instanceof base_exception_1.baseException) {
                 status = error.status;
                 message = error.message;
@@ -49,27 +50,27 @@ function baseHandleOrder(base, req, res) {
                 message = error.message;
             }
             else {
-                console.log(error.response);
-                message = error.response
-                    ? error.response.data
-                    : error.message;
+                message = error.response ? error.response.data : error.message;
+                message = message.meta.code + `: ${message.meta.error}`;
                 status = error.response.status;
             }
+            sanitizedErrorMessage = message.replace(/[^a-zA-Z0-9\s]/g, '');
             const resultObject = [
                 {
                     toolCallId: base.vapiId,
-                    result: message,
+                    result: sanitizedErrorMessage,
                 },
             ];
             const returnToVapi = {
                 results: resultObject,
             };
             console.error("Detalhes do erro:", message);
-            res.status(status).json(returnToVapi);
+            res.status(200).json(returnToVapi);
         }
     });
 }
 const formatPhone = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let sanitizedErrorMessage = "";
     try {
         const menuFoodtec = new phone_service_1.PhoneService(req, res);
         const result = yield menuFoodtec.handle();
@@ -77,14 +78,14 @@ const formatPhone = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     }
     catch (error) {
         if (error == base_exception_1.baseException) {
-            res.status(error.status).json({ data: error.message });
+            sanitizedErrorMessage = error.message.replace(/[^a-zA-Z0-9\s]/g, '');
+            res.status(200).json({ data: sanitizedErrorMessage });
             return;
         }
-        const errorMessage = error.response
-            ? error.response.data
-            : error.message;
+        const errorMessage = error.response ? error.response.data : error.message;
         console.error("Detalhes do erro:", errorMessage);
-        res.status(error.response.status).json({ data: errorMessage });
+        sanitizedErrorMessage = errorMessage.replace(/[^a-zA-Z0-9\s]/g, '');
+        res.status(200).json({ data: sanitizedErrorMessage });
     }
 });
 exports.formatPhone = formatPhone;
