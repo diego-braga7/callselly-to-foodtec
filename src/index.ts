@@ -6,11 +6,13 @@ import authRoutes from './routes/auth';
 import "reflect-metadata";
 import {AppDataSource } from "./data-source";
 import path from "path";
-
+import cors from "cors";
+  
 dotenv.config();
 
 
 const app: Application = express();
+app.use(cors());
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
